@@ -1,3 +1,2 @@
-# Let HuggingFace Spaces handle Gradio version
 requests>=2.30
 pillow
