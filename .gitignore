@@ -211,6 +211,13 @@ data/
 mlruns/
 plots/
 results/
-*.onnx
-class_labels.json
+# Temporarily allow model files for deployment
+#*.onnx
+#class_labels.json
+
+# Guide files (not for git)
+QUICK_START.md
+READY_TO_DEPLOY.md
+VERIFICATION_CHECKLIST.md
+DEPLOYMENT_GUIDE.md
 
