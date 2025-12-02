@@ -3,7 +3,7 @@ import requests
 import io
 from PIL import Image
 
-RENDER_API_URL = "https://mlops-lab3-latest-kx2m.onrender.com"
+RENDER_API_URL = "https://mlops-lab3-2m86.onrender.com"
 PREDICT_ENDPOINT = f"{RENDER_API_URL}/predict"
 
 

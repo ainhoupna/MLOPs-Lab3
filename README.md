@@ -13,4 +13,4 @@ pinned: false
 
 Upload an image of a dog or cat to classify its breed using ResNet50 + ONNX Runtime.
 
-**Backend API:** https://mlops-lab3-latest-kx2m.onrender.com
+**Backend API:** https://mlops-lab3-2m86.onrender.com
