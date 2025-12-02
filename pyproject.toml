@@ -3,7 +3,7 @@ name = "mlops-lab3-transfer-learning"
 version = "0.1.0"
 description = "MLOps Lab 3 - Transfer Learning with MLflow Experiment Tracking"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 dependencies = [
     "black>=25.9.0",
     "click>=8.3.0",

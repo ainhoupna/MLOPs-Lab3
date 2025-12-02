@@ -1,5 +1,5 @@
-# Base image with Python 3.13
-FROM python:3.13-slim AS base
+# Use the official Python 3.11 image as the base image
+FROM python:3.11-slim AS builder
 
 # Recommended environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -27,7 +27,8 @@ COPY uv.lock* .
 RUN uv pip install --system --no-cache .
 
 # Copy the source code and prepare the execution environment
-FROM base AS runtime
+# Copy the source code and prepare the execution environment
+FROM python:3.11-slim AS runtime
 # Copy the installed dependencies
 COPY --from=builder /usr/local /usr/local
 
@@ -40,8 +41,10 @@ COPY mylib ./mylib
 COPY templates ./templates
 
 # Download model artifacts from GitHub Releases
-RUN wget -q https://github.com/ainhoupna/MLOPs-Lab3/releases/download/v1.0/model.onnx -O ./model.onnx
-RUN wget -q https://github.com/ainhoupna/MLOPs-Lab3/releases/download/v1.0/class_labels.json -O ./class_labels.json
+# Using v1.0 tag. If download fails, build will fail.
+RUN wget -q https://github.com/ainhoupna/MLOPs-Lab3/releases/download/v1.0/model.onnx -O ./model.onnx && \
+    wget -q https://github.com/ainhoupna/MLOPs-Lab3/releases/download/v1.0/class_labels.json -O ./class_labels.json && \
+    ls -lh ./model.onnx ./class_labels.json
 
 # Expose the port associated with the API created with FastAPI
 EXPOSE 8000
