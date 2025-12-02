@@ -17,20 +17,20 @@ all: install format lint test
 
 # Docker targets
 docker-build:
-	docker build -t mlops-lab2:latest .
+	docker build -t mlops-lab3:latest .
 
 docker-run:
-	docker run -d -p 8000:8000 --name mlops-lab2-container mlops-lab2:latest
+	docker run -d -p 8000:8000 --name mlops-lab3-container mlops-lab3:latest
 
 docker-stop:
-	docker stop mlops-lab2-container || true
-	docker rm mlops-lab2-container || true
+	docker stop mlops-lab3-container || true
+	docker rm mlops-lab3-container || true
 
 docker-clean: docker-stop
-	docker rmi mlops-lab2:latest || true
+	docker rmi mlops-lab3:latest || true
 
 docker-logs:
-	docker logs mlops-lab2-container
+	docker logs mlops-lab3-container
 
 docker-test:
 	@echo "Testing API endpoints..."

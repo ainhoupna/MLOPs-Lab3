@@ -1,5 +1,5 @@
 """
-Gradio Application for MLOps Lab2 Image Classification
+Gradio Application for MLOps Lab3 Image Classification
 This app provides a user-friendly interface to interact with the FastAPI backend hosted on Render.
 """
 
@@ -8,7 +8,7 @@ import requests
 from PIL import Image
 import io
 
-API_URL = "https://mlops-lab2-latest-kx2m.onrender.com"
+API_URL = "https://mlops-lab3-latest-kx2m.onrender.com"
 
 def predict_image(image):
     """
@@ -158,10 +158,10 @@ def rotate_image(image, degrees):
 
 
 # Create Gradio interface with tabs
-with gr.Blocks(title="MLOps Lab2 - Image Classification") as demo:
+with gr.Blocks(title="MLOps Lab3 - Image Classification") as demo:
     gr.Markdown(
         """
-        # MLOps Lab2 - Image Classification and Processing
+        # MLOps Lab3 - Image Classification and Processing
         
         This application demonstrates a complete MLOps pipeline with:
         - **FastAPI** backend hosted on **Render**
