@@ -1,61 +1,74 @@
-"""
-Gradio Application for MLOps Lab3 Image Classification
-Compatible with Gradio 4.x
-"""
-
 import gradio as gr
 import requests
-from PIL import Image
 import io
+from PIL import Image
 
-# URL of the API created with FastAPI
-API_URL = "https://mlops-lab3-latest-kx2m.onrender.com"
+RENDER_API_URL = "https://mlops-lab3-latest-kx2m.onrender.com"
+PREDICT_ENDPOINT = f"{RENDER_API_URL}/predict"
 
 
-def predict_image(image):
+def predict_pet_breed(image: Image.Image):
     """
-    Send an image to the API for prediction
+    Handles the Gradio image input, sends it to the Render FastAPI /predict endpoint,
+    and returns the predicted class label.
     """
+    if image is None:
+        return "Please upload an image to predict its class."
+
+    # 1. Convert the PIL Image object (received from Gradio) to a byte buffer
+    img_byte_arr = io.BytesIO()
+    # Save the image as PNG into the buffer
+    image.save(img_byte_arr, format='PNG') 
+    img_byte_arr.seek(0)  # Rewind the buffer pointer to the start
+
+    # 2. Prepare file payload for multipart/form-data upload
+    # 'file' must match the parameter name in your FastAPI endpoint: file: UploadFile = File(...)
+    files = {'file': ('image.png', img_byte_arr, 'image/png')}
+
     try:
-        # Convert PIL Image to bytes
-        img_byte_arr = io.BytesIO()
-        image.save(img_byte_arr, format='PNG')
-        img_byte_arr.seek(0)
-        
-        # Send to API
-        files = {"file": ("image.png", img_byte_arr, "image/png")}
-        response = requests.post(f"{API_URL}/predict", files=files, timeout=30)
-        response.raise_for_status()
+        # 3. Send POST request to the remote FastAPI API on Render
+        response = requests.post(PREDICT_ENDPOINT, files=files, timeout=30)
+        response.raise_for_status()  # Raise exception for bad status codes (4xx or 5xx)
         
         data = response.json()
-        predicted_class = data.get("predicted_class", "Unknown")
-        confidence = data.get("confidence", 0.0)
         
-        return f"**Prediction:** {predicted_class}\n\n**Confidence:** {confidence:.2%}"
-    
+        # 4. Extract and display the prediction
+        if 'predicted_class' in data:
+            predicted_class = data['predicted_class']
+            confidence = data.get('confidence', 0.0)
+            return f"**Predicted Breed:** {predicted_class}\n\n**Confidence:** {confidence:.2%}"
+        
+        return f"API Error: {data.get('detail', 'API response missing prediction.')}"
+
     except requests.exceptions.Timeout:
-        return "Error: Request timed out. The API might be starting up (cold start)."
-    except requests.exceptions.HTTPError as e:
-        error_detail = "Unknown error"
-        try:
-            error_detail = response.json().get('detail', str(e))
-        except:
-            error_detail = str(e)
-        return f"Error: {error_detail}"
-    except Exception as e:
-        return f"Error: {str(e)}"
+        return "API Timeout: The prediction took too long. The service might be starting up (cold start). Please try again."
+    except requests.exceptions.RequestException as e:
+        # Handle connection errors, DNS errors, timeout, etc.
+        return f"API Connection Error: Could not reach API or invalid response. Check Render URL and API status. ({e})"
 
 
-# Create Gradio interface
-iface = gr.Interface(
-    fn=predict_image,
-    inputs=gr.Image(type="pil", label="Upload Pet Image"),
-    outputs=gr.Textbox(label="Prediction Result"),
-    title="MLOps Lab3 - Pet Breed Classifier",
-    description="Upload an image of a dog or cat to classify its breed. Powered by ResNet50 + ONNX Runtime.",
-    allow_flagging="never"
+# --- Gradio Interface ---
+
+# Define the interface components
+image_input = gr.Image(
+    type="pil", 
+    label="Upload Pet Image", 
+    width=400
+)
+prediction_output = gr.Textbox(
+    label="Prediction Result", 
+    lines=3
 )
 
-# Launch the GUI
+# Build the Gradio interface
+iface = gr.Interface(
+    fn=predict_pet_breed,
+    inputs=image_input,
+    outputs=prediction_output,
+    title="MLOps Lab 3: Pet Breed Classifier",
+    description=f"Upload an image of a dog or cat to classify its breed. Powered by ResNet50 + ONNX Runtime (API: {RENDER_API_URL})"
+)
+
+# Launch the GUI (necessary for local testing, ignored by HuggingFace Spaces)
 if __name__ == "__main__":
     iface.launch()
