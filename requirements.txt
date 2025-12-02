@@ -1,4 +1,3 @@
-gradio==3.50.2
+# Let HuggingFace Spaces handle Gradio version
 requests>=2.30
 pillow
-huggingface-hub<1.0

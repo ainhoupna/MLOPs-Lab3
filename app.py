@@ -1,5 +1,6 @@
 """
 Gradio Application for MLOps Lab3 Image Classification
+Compatible with Gradio 4.x
 """
 
 import gradio as gr
@@ -35,22 +36,30 @@ def predict_image(image):
     except requests.exceptions.Timeout:
         return "Error: Request timed out. The API might be starting up (cold start)."
     except requests.exceptions.HTTPError as e:
-        return f"Error: {response.json().get('detail', str(e))}"
+        error_detail = "Unknown error"
+        try:
+            error_detail = response.json().get('detail', str(e))
+        except:
+            error_detail = str(e)
+        return f"Error: {error_detail}"
     except Exception as e:
         return f"Error: {str(e)}"
 
 
-# Create Gradio interface
-iface = gr.Interface(
-    fn=predict_image,
-    inputs=gr.Image(type="pil", label="Upload Pet Image"),
-    outputs=gr.Textbox(label="Prediction Result"),
-    title="MLOps Lab3 - Pet Breed Classifier",
-    description="Upload an image of a dog or cat to classify its breed. Powered by ResNet50 + ONNX Runtime.",
-    examples=None,
-    allow_flagging="never"
-)
+# Create Gradio interface using Blocks (compatible with Gradio 4.x)
+with gr.Blocks(title="MLOps Lab3 - Pet Breed Classifier") as demo:
+    gr.Markdown("# MLOps Lab3 - Pet Breed Classifier")
+    gr.Markdown("Upload an image of a dog or cat to classify its breed. Powered by ResNet50 + ONNX Runtime.")
+    
+    with gr.Row():
+        with gr.Column():
+            image_input = gr.Image(type="pil", label="Upload Pet Image")
+            submit_btn = gr.Button("Predict")
+        with gr.Column():
+            output_text = gr.Textbox(label="Prediction Result", lines=3)
+    
+    submit_btn.click(fn=predict_image, inputs=image_input, outputs=output_text)
 
 # Launch the GUI
 if __name__ == "__main__":
-    iface.launch()
+    demo.launch()
