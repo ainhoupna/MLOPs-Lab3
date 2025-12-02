@@ -20,8 +20,9 @@ dependencies = [
     "torchvision>=0.20.0",
     "mlflow>=2.18.0",
     "onnx>=1.17.0",
-    "onnxruntime>=1.20.0",
+    "huggingface-hub>=0.35.5",
+    "transformers>=4.30.0",
     "onnxscript>=0.1.0",
-    "matplotlib>=3.9.0",
+    "onnxruntime>=1.20.0",
     "numpy>=2.0.0",
 ]
