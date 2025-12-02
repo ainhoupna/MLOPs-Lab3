@@ -40,9 +40,8 @@ COPY mylib ./mylib
 COPY templates ./templates
 
 # Download model artifacts from GitHub Releases
-# Note: Replace 'v1.0' with your actual release tag after creating the release
-RUN wget -q https://github.com/ainhoupna/MLOPs-Lab3/releases/download/v1.0/model.onnx -O ./model.onnx || echo "Model download will be added after GitHub release"
-RUN wget -q https://github.com/ainhoupna/MLOPs-Lab3/releases/download/v1.0/class_labels.json -O ./class_labels.json || echo "Labels download will be added after GitHub release"
+RUN wget -q https://github.com/ainhoupna/MLOPs-Lab3/releases/download/v1.0/model.onnx -O ./model.onnx
+RUN wget -q https://github.com/ainhoupna/MLOPs-Lab3/releases/download/v1.0/class_labels.json -O ./class_labels.json
 
 # Expose the port associated with the API created with FastAPI
 EXPOSE 8000
