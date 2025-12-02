@@ -30,13 +30,20 @@ RUN uv pip install --system --no-cache .
 FROM base AS runtime
 # Copy the installed dependencies
 COPY --from=builder /usr/local /usr/local
+
+# Install wget for downloading model files
+RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
+
 # Copy the source code of the API, logic and home.html
 COPY api ./api
 COPY mylib ./mylib
 COPY templates ./templates
-# Copy model artifacts (ONNX model and class labels)
-COPY model.onnx ./model.onnx
-COPY class_labels.json ./class_labels.json
+
+# Download model artifacts from GitHub Releases
+# Note: Replace 'v1.0' with your actual release tag after creating the release
+RUN wget -q https://github.com/ainhoupna/MLOPs-Lab3/releases/download/v1.0/model.onnx -O ./model.onnx || echo "Model download will be added after GitHub release"
+RUN wget -q https://github.com/ainhoupna/MLOPs-Lab3/releases/download/v1.0/class_labels.json -O ./class_labels.json || echo "Labels download will be added after GitHub release"
+
 # Expose the port associated with the API created with FastAPI
 EXPOSE 8000
 # Default command: it starts the API with uvicorn

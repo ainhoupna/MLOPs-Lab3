@@ -114,7 +114,7 @@ def select_and_serialize(model_name, output_dir, metric):
     # Create dummy input for ONNX export (batch_size=1, channels=3, height=224, width=224)
     dummy_input = torch.randn(1, 3, 224, 224, requires_grad=False)
 
-    # Export to ONNX
+    # Export to ONNX - embed all data in single file (no external .data file)
     torch.onnx.export(
         model,
         dummy_input,
