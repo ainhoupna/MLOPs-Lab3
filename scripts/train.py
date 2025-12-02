@@ -89,6 +89,17 @@ def get_model(model_name, num_classes, pretrained=True):
         for param in model.classifier[1].parameters():
             param.requires_grad = True
 
+    elif model_name == "mobilenet_v2":
+        model = models.mobilenet_v2(
+            weights=models.MobileNet_V2_Weights.IMAGENET1K_V1 if pretrained else None
+        )
+        num_features = model.classifier[1].in_features
+        model.classifier[1] = nn.Linear(num_features, num_classes)
+        for param in model.parameters():
+            param.requires_grad = False
+        for param in model.classifier[1].parameters():
+            param.requires_grad = True
+
     else:
         raise ValueError(f"Unknown model: {model_name}")
 
