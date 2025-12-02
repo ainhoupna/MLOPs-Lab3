@@ -1,11 +1,17 @@
 """
-Unit Testing of the application's logic 
-
+Unit Tests for the image processing logic (mylib.image_classificator).
 """
 
-import pytest
 import io
+import sys
+from pathlib import Path
+
+import pytest
 from PIL import Image
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from mylib.image_classificator import predict_image_class, resize_image, rotate_image, convert_to_grayscale
 
 # --- Fixtures for Logic Tests ---

@@ -1,5 +1,5 @@
 ---
-title: MLOps Lab2 - Image Classification
+title: MLOps Lab3 - Transfer Learning with MLflow
 colorFrom: indigo
 colorTo: yellow
 sdk: gradio
@@ -8,35 +8,44 @@ app_file: app.py
 pinned: false
 ---
 
-# MLOps Lab2 - Image Classification and Processing
+# MLOps Lab3 - Transfer Learning with MLflow Experiment Tracking
 
-This project demonstrates a complete MLOps pipeline for image classification and processing.
+This project demonstrates a complete MLOps pipeline with transfer learning, experiment tracking, and model deployment.
 
 ## Features
 
-- **Image Classification**: Predict image classes using a machine learning model
-- **Image Resize**: Resize images to custom dimensions
-- **Grayscale Conversion**: Convert images to grayscale
-- **Image Rotation**: Rotate images by specified degrees
+- **Transfer Learning**: Train pet breed classifiers using pre-trained models (ResNet, VGG, EfficientNet)
+- **MLflow Experiment Tracking**: Log parameters, metrics, artifacts, and models
+- **Model Selection**: Automatically select best model based on validation accuracy
+- **ONNX Deployment**: Serialize models to ONNX format for production
+- **Image Processing**: Resize, grayscale conversion, and rotation capabilities
 
 ## Architecture
 
 This project implements a full MLOps stack:
 
-1. **Backend API**: FastAPI application containerized with Docker
-2. **Container Registry**: Docker Hub for image storage
-3. **Deployment**: Render for hosting the API
-4. **Frontend**: Gradio interface on HuggingFace Spaces
-5. **CI/CD**: GitHub Actions for automated deployment
+1. **Training**: PyTorch transfer learning with Oxford-IIIT Pet dataset (37 classes)
+2. **Experiment Tracking**: MLflow for logging experiments and model registry
+3. **Model Serialization**: ONNX format for efficient inference
+4. **Backend API**: FastAPI application with ONNX Runtime inference
+5. **Container Registry**: Docker Hub for image storage
+6. **Deployment**: Render for hosting the API
+7. **Frontend**: Gradio interface on HuggingFace Spaces
+8. **CI/CD**: GitHub Actions for automated deployment
 
-## Links
+## Model Performance
 
-- **Source Code**: [GitHub Repository](https://github.com/ainhoupna/MLOPs-Lab2)
-- **Docker Image**: [Docker Hub](https://hub.docker.com/r/ainhoupna/mlops-lab2)
+- **Best Model**: ResNet50
+- **Validation Accuracy**: 90.90%
+- **Dataset**: Oxford-IIIT Pet (3,680 training samples, 37 classes)
+- **Training**: Transfer learning with frozen feature extractor
 
 ## Technical Stack
 
-- **Backend**: FastAPI, Python 3.13, Pillow
+- **ML Framework**: PyTorch, torchvision
+- **Experiment Tracking**: MLflow
+- **Inference**: ONNX Runtime
+- **Backend**: FastAPI, Python 3.13
 - **Frontend**: Gradio
 - **Containerization**: Docker
 - **CI/CD**: GitHub Actions

@@ -1,7 +1,7 @@
 [project]
-name = "mlops-lab1-demo"
+name = "mlops-lab3-transfer-learning"
 version = "0.1.0"
-description = "Add your description here"
+description = "MLOps Lab 3 - Transfer Learning with MLflow Experiment Tracking"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -16,4 +16,12 @@ dependencies = [
     "pytest-cov>=7.0.0",
     "python-multipart>=0.0.20",
     "uvicorn>=0.38.0",
+    "torch>=2.5.0",
+    "torchvision>=0.20.0",
+    "mlflow>=2.18.0",
+    "onnx>=1.17.0",
+    "onnxruntime>=1.20.0",
+    "onnxscript>=0.1.0",
+    "matplotlib>=3.9.0",
+    "numpy>=2.0.0",
 ]

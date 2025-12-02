@@ -108,19 +108,36 @@ def rotate_image(image_file: io.BytesIO, degrees: int) -> io.BytesIO:
         raise ValueError(f"Error during image rotation: {e}") from e
 
 
-def predict_image_class(_image_file: io.BytesIO) -> str:
+def predict_image_class(image_file: io.BytesIO) -> str:
     """
-    Simulates image classification by returning a randomly chosen class.
+    Predicts the pet breed class using the ONNX model.
 
     Parameters
     ----------
-    _image_file : io.BytesIO
-        Buffer containing the binary image data (unused for random prediction).
-        (Prefixed with '_' to ignore W0613: Unused argument).
+    image_file : io.BytesIO
+        Buffer containing the binary image data.
 
     Returns
     -------
     str
-        The randomly chosen class name from the predefined list.
+        The predicted class name from the model.
+
+    Raises
+    ------
+    ValueError
+        If the image cannot be processed or the model fails.
     """
-    return random.choice(IMAGE_CLASSES)
+    try:
+        from mylib.onnx_classifier import get_classifier
+
+        # Load image
+        img = Image.open(image_file)
+
+        # Get classifier and predict
+        classifier = get_classifier()
+        predicted_class = classifier.predict(img)
+
+        return predicted_class
+
+    except Exception as e:
+        raise ValueError(f"Error during image classification: {e}") from e

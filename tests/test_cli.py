@@ -1,12 +1,15 @@
 """
-Integration testing with the CLI
-
+Unit Testing of the CLI
 """
 
-import os
+import sys
 from pathlib import Path
 import pytest
 from click.testing import CliRunner
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from cli.cli import cli
 
 # --- Fixtures for CLI Tests ---

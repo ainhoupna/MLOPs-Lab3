@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+ENV/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# MLflow and training data (not needed in container)
+mlruns/
+data/
+plots/
+results/
+
+# Documentation
+*.md
+!README.md
+*.pdf
+
+# Tests (not needed in production)
+tests/
+.pytest_cache/
+
+# CI/CD
+.github/
+
+# Training scripts (not needed in production)
+scripts/
+
+# Lock files (using requirements.txt instead)
+uv.lock
+poetry.lock
+Pipfile.lock
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Keep these files (needed for inference)
+!model.onnx
+!model.onnx.data
+!class_labels.json

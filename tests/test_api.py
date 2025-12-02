@@ -1,14 +1,19 @@
 """
 Integration testing with the API
 
+Unit Testing of the API endpoints
 """
 
-# tests/test_api.py
+import io
+import sys
+from pathlib import Path
 
 import pytest
-import io
-from PIL import Image
 from fastapi.testclient import TestClient
+from PIL import Image
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 #  Import the application from your file structure
 from api.api import app 
