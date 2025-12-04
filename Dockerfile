@@ -32,20 +32,15 @@ FROM python:3.11-slim AS runtime
 # Copy the installed dependencies
 COPY --from=builder /usr/local /usr/local
 
-# Install wget for downloading model files
-RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
-
 # Copy the source code of the API, logic and home.html
 COPY api ./api
 COPY mylib ./mylib
 COPY templates ./templates
 
-# Download model artifacts from GitHub Releases
-# Using v1.0 tag. If download fails, build will fail.
-RUN wget -q https://github.com/ainhoupna/MLOPs-Lab3/releases/download/v1.0/model.onnx -O ./model.onnx && \
-    wget -q https://github.com/ainhoupna/MLOPs-Lab3/releases/download/v1.0/model.onnx.data -O ./model.onnx.data && \
-    wget -q https://github.com/ainhoupna/MLOPs-Lab3/releases/download/v1.0/class_labels.json -O ./class_labels.json && \
-    ls -lh ./model.onnx ./model.onnx.data ./class_labels.json
+# Copy model artifacts (must be present locally)
+COPY model.onnx .
+COPY model.onnx.data* .
+COPY class_labels.json .
 
 # Expose the port associated with the API created with FastAPI
 EXPOSE 8000

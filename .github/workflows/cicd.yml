@@ -1,0 +1,123 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  workflow_dispatch:
+
+jobs:
+  # Job 1: Run Tests
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install uv
+        run: pip install uv
+      
+      - name: Install dependencies
+        run: uv pip install --system .
+      
+      - name: Run tests with pytest
+        run: pytest tests/ -v
+  
+  # Job 2: Build and Push Docker Image
+  docker:
+    name: Build and Push to Docker Hub
+    runs-on: ubuntu-latest
+    needs: test  # Only run if tests pass
+    
+    steps:
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKER_USERNAME }}/mlops-lab3
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix={{branch}}-
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/mlops-lab3:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/mlops-lab3:buildcache,mode=max
+      
+      - name: Image digest
+        run: echo ${{ steps.meta.outputs.digest }}
+  
+  # Job 3: Deploy to Render
+  deploy-render:
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+    needs: docker  # Only run after Docker image is pushed
+    
+    steps:
+      - name: Trigger Render Deployment
+        run: |
+          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_KEY }}"
+          echo "Render deployment triggered successfully"
+  
+  # Job 4: Deploy to HuggingFace Spaces
+  deploy-hf:
+    name: Deploy to HuggingFace Spaces
+    runs-on: ubuntu-latest
+    needs: test  # Can run in parallel with docker
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Push to HuggingFace Spaces
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git checkout hf-space || git checkout -b hf-space
+          git remote add hf https://huggingface.co/spaces/ainhoupna/mlops-lab-3 || true
+          git push https://ainhoupna:$HF_TOKEN@huggingface.co/spaces/ainhoupna/mlops-lab-3 hf-space:main --force
+          echo "HuggingFace Spaces deployment completed"
