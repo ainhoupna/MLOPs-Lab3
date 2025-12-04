@@ -43,8 +43,9 @@ COPY templates ./templates
 # Download model artifacts from GitHub Releases
 # Using v1.0 tag. If download fails, build will fail.
 RUN wget -q https://github.com/ainhoupna/MLOPs-Lab3/releases/download/v1.0/model.onnx -O ./model.onnx && \
+    wget -q https://github.com/ainhoupna/MLOPs-Lab3/releases/download/v1.0/model.onnx.data -O ./model.onnx.data && \
     wget -q https://github.com/ainhoupna/MLOPs-Lab3/releases/download/v1.0/class_labels.json -O ./class_labels.json && \
-    ls -lh ./model.onnx ./class_labels.json
+    ls -lh ./model.onnx ./model.onnx.data ./class_labels.json
 
 # Expose the port associated with the API created with FastAPI
 EXPOSE 8000
