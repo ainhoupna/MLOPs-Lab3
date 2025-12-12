@@ -6,11 +6,7 @@ select the best one based on validation accuracy, and serialize it to ONNX forma
 """
 
 import json
-import sys
 from pathlib import Path
-
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import click
 import mlflow
@@ -76,8 +72,8 @@ def select_and_serialize(model_name, output_dir, metric):
         print(f"Version {version_number}:")
         print(f"  Run ID: {run_id}")
         print(f"  {metric}: {metric_value:.2f}%")
-        print(f"  Model: {metrics.get('model_name', 'N/A')}")
-        print(f"  Epochs: {int(metrics.get('epochs', 0)) if 'epochs' in metrics else 'N/A'}")
+        print(f"  Model: {run.data.params.get('model_name', 'N/A')}")
+        print(f"  Epochs: {run.data.params.get('epochs', 'N/A')}")
         print()
 
         # Update best model if this one is better
@@ -129,11 +125,31 @@ def select_and_serialize(model_name, output_dir, metric):
 
     print(f"✓ Model serialized to: {onnx_path.absolute()}")
 
-    # Download and save class labels
+    # Download and save class labels - AUTO-DETECT JSON FILE
     print("\nDownloading class labels...")
-    class_labels_artifact = client.download_artifacts(
-        best_version.run_id, "class_labels.json"
-    )
+    
+    # List artifacts to find class_labels JSON file
+    artifacts = client.list_artifacts(best_version.run_id)
+    
+    # Find any JSON file containing "class_labels"
+    json_candidates = [
+        art.path
+        for art in artifacts
+        if "class_labels" in art.path and art.path.endswith(".json")
+    ]
+
+    if not json_candidates:
+        print("Warning: No class_labels JSON file found in artifacts")
+        print("Available artifacts:")
+        for art in artifacts:
+            print(f"  - {art.path}")
+        return
+
+    # Use the first match
+    artifact_path = json_candidates[0]
+    print(f"Found class labels artifact: {artifact_path}")
+
+    class_labels_artifact = client.download_artifacts(best_version.run_id, artifact_path)
 
     # Load the class labels
     with open(class_labels_artifact, "r", encoding="utf-8") as f:

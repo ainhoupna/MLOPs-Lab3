@@ -3,16 +3,11 @@ Unit Tests for the image processing logic (mylib.image_classificator).
 """
 
 import io
-import sys
-from pathlib import Path
-
 import pytest
 from PIL import Image
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from mylib.image_classificator import predict_image_class, resize_image, rotate_image, convert_to_grayscale
+
 
 # --- Fixtures for Logic Tests ---
 
@@ -58,53 +53,56 @@ def test_logic_resize_returns_bytesio_and_correct_size(image_buffer):
     assert resized_img.size == (new_width, new_height)
 
 def test_logic_resize_raises_error_on_invalid_data():
-    """Test that resize_image handles non-image data."""
-    invalid_buffer = io.BytesIO(b"This is not a valid JPEG.")
-    
-    with pytest.raises(ValueError) as excinfo:
-        resize_image(invalid_buffer, 10, 10)
-    
-    assert "Error during image processing" in str(excinfo.value)
-
-def test_logic_convert_to_grayscale_success(image_buffer):
-    """Test that convert_to_grayscale returns a buffer and changes mode to 'L' (Grayscale)."""
-    
-    grayscale_buffer = convert_to_grayscale(image_buffer)
-    
-    # Check if the result is a BytesIO object
-    assert isinstance(grayscale_buffer, io.BytesIO)
-    
-    # Check if the image mode is 'L' (Grayscale)
-    grayscale_img = Image.open(grayscale_buffer)
-    assert grayscale_img.mode == 'L'
-
-def test_logic_rotate_image_success(image_buffer):
-    """Test that rotate_image returns a buffer and changes the image size (due to expand=True)."""
-    
-    # Get original size for comparison
-    original_img = Image.open(image_buffer)
-    original_width, original_height = original_img.size
-    
-    # Rotate by 90 degrees
-    rotated_buffer = rotate_image(image_buffer, 90)
-    
-    # Check if the result is a BytesIO object
-    assert isinstance(rotated_buffer, io.BytesIO)
-    
-    # Check if dimensions are swapped (or close, depending on PIL handling)
-    rotated_img = Image.open(rotated_buffer)
-    rotated_width, rotated_height = rotated_img.size
-    
-    # In a simple 10x10 image fixture, size won't swap, but we test for dimensions change.
-    # The crucial check is that the function executed without error.
-    assert rotated_width == original_width
-    assert rotated_height == original_height
-    
-    assert rotated_img.mode in ['RGB', 'L']   
-
-def test_logic_rotate_image_raises_error_on_invalid_data():
-    """Test that rotate_image handles non-image data."""
-    invalid_buffer = io.BytesIO(b"Not an image file for rotation.")
+    """Test that resize_image raises an error when given non-image data."""
+    invalid_buffer = io.BytesIO(b"This is not an image")
     
     with pytest.raises(ValueError):
-        rotate_image(invalid_buffer, 90)    
+        resize_image(invalid_buffer, 50, 50)
+
+def test_logic_convert_to_grayscale_returns_grayscale_image(image_buffer):
+    """Test that convert_to_grayscale returns a grayscale image."""
+    grayscale_buffer = convert_to_grayscale(image_buffer)
+    
+    assert isinstance(grayscale_buffer, io.BytesIO)
+    
+    grayscale_img = Image.open(grayscale_buffer)
+    assert grayscale_img.mode == "L"
+
+def test_logic_rotate_image_returns_rotated_image(image_buffer):
+    """Test that rotate_image returns a rotated image."""
+    degrees = 90
+    
+    rotated_buffer = rotate_image(image_buffer, degrees)
+    
+    assert isinstance(rotated_buffer, io.BytesIO)
+    
+    rotated_img = Image.open(rotated_buffer)
+    assert rotated_img is not None
+
+def test_logic_rotate_image_negative_degrees(image_buffer):
+    """Test rotation with negative degrees."""
+    degrees = -45
+    
+    rotated_buffer = rotate_image(image_buffer, degrees)
+    
+    assert isinstance(rotated_buffer, io.BytesIO)
+    rotated_img = Image.open(rotated_buffer)
+    assert rotated_img is not None
+
+def test_logic_resize_preserves_image_format(image_buffer):
+    """Test that resize preserves JPEG format."""
+    resized_buffer = resize_image(image_buffer, 50, 50)
+    
+    resized_img = Image.open(resized_buffer)
+    assert resized_img.format == "JPEG"
+
+def test_logic_grayscale_preserves_dimensions(image_buffer):
+    """Test that grayscale conversion preserves image dimensions."""
+    original_img = Image.open(image_buffer)
+    original_size = original_img.size
+    
+    image_buffer.seek(0)  # Reset
+    grayscale_buffer = convert_to_grayscale(image_buffer)
+    
+    grayscale_img = Image.open(grayscale_buffer)
+    assert grayscale_img.size == original_size

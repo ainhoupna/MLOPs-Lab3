@@ -27,8 +27,7 @@ COPY uv.lock* .
 RUN uv pip install --system --no-cache .
 
 # Copy the source code and prepare the execution environment
-# Copy the source code and prepare the execution environment
-FROM python:3.11-slim AS runtime
+FROM base AS runtime
 # Copy the installed dependencies
 COPY --from=builder /usr/local /usr/local
 
@@ -44,5 +43,5 @@ COPY class_labels.json .
 
 # Expose the port associated with the API created with FastAPI
 EXPOSE 8000
-# Default command: it starts the API with uvicorn
-CMD ["uvicorn", "api.api:app", "--host", "0.0.0.0", "--port", "8000"]
+# Default command: it starts the API with uvicorn (uses PORT env variable for Render)
+CMD ["sh", "-c", "uvicorn api.api:app --host 0.0.0.0 --port ${PORT:-8000}"]

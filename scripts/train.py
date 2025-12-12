@@ -8,11 +8,7 @@ on the Oxford-IIIT Pet dataset and logs all experiments to MLflow.
 import json
 import os
 import random
-import sys
 from pathlib import Path
-
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import click
 import matplotlib.pyplot as plt
@@ -43,7 +39,7 @@ def get_model(model_name, num_classes, pretrained=True):
     Get a pre-trained model and modify the classifier for transfer learning.
 
     Args:
-        model_name: Name of the model ('resnet18', 'resnet50', 'vgg16', 'efficientnet_b0')
+        model_name: Name of the model ('resnet18', 'resnet50', 'vgg16', 'efficientnet_b0', 'mobilenet_v2')
         num_classes: Number of output classes
         pretrained: Whether to use pretrained weights
 
@@ -207,19 +203,6 @@ def train(model_name, batch_size, epochs, lr, seed, data_dir, experiment_name):
     mlflow.set_experiment(experiment_name)
 
     with mlflow.start_run(run_name=run_name):
-        # Log parameters
-        mlflow.log_param("model_name", model_name)
-        mlflow.log_param("batch_size", batch_size)
-        mlflow.log_param("epochs", epochs)
-        mlflow.log_param("learning_rate", lr)
-        mlflow.log_param("seed", seed)
-        mlflow.log_param("dataset", "Oxford-IIIT-Pet")
-        mlflow.log_param("optimizer", "Adam")
-        mlflow.log_param("loss_function", "CrossEntropyLoss")
-        mlflow.log_param("device", str(device))
-        mlflow.log_param("pretrained", True)
-        mlflow.log_param("transfer_learning", True)
-
         # Get dataloaders
         print("Loading data...")
         train_loader, val_loader, class_names = get_dataloaders(
@@ -227,9 +210,24 @@ def train(model_name, batch_size, epochs, lr, seed, data_dir, experiment_name):
         )
 
         num_classes = len(class_names)
-        mlflow.log_param("num_classes", num_classes)
-        mlflow.log_param("train_samples", len(train_loader.dataset))
-        mlflow.log_param("val_samples", len(val_loader.dataset))
+
+        # Log parameters - BATCH LOGGING
+        mlflow.log_params({
+            "model_name": model_name,
+            "batch_size": batch_size,
+            "epochs": epochs,
+            "learning_rate": lr,
+            "seed": seed,
+            "dataset": "Oxford-IIIT-Pet",
+            "optimizer": "Adam",
+            "loss_function": "CrossEntropyLoss",
+            "device": str(device),
+            "pretrained": True,
+            "transfer_learning": True,
+            "num_classes": num_classes,
+            "train_samples": len(train_loader.dataset),
+            "val_samples": len(val_loader.dataset),
+        })
 
         # Save class labels
         class_labels = {i: name for i, name in enumerate(class_names)}
@@ -263,11 +261,13 @@ def train(model_name, batch_size, epochs, lr, seed, data_dir, experiment_name):
             train_accs.append(train_acc)
             val_accs.append(val_acc)
 
-            # Log metrics per epoch
-            mlflow.log_metric("train_loss", train_loss, step=epoch)
-            mlflow.log_metric("val_loss", val_loss, step=epoch)
-            mlflow.log_metric("train_accuracy", train_acc, step=epoch)
-            mlflow.log_metric("val_accuracy", val_acc, step=epoch)
+            # Log metrics per epoch - BATCH LOGGING
+            mlflow.log_metrics({
+                "train_loss": train_loss,
+                "val_loss": val_loss,
+                "train_accuracy": train_acc,
+                "val_accuracy": val_acc,
+            }, step=epoch)
 
             print(
                 f"Epoch {epoch+1}/{epochs} - "
@@ -279,12 +279,14 @@ def train(model_name, batch_size, epochs, lr, seed, data_dir, experiment_name):
             if val_acc > best_val_acc:
                 best_val_acc = val_acc
 
-        # Log final metrics
-        mlflow.log_metric("final_train_loss", train_losses[-1])
-        mlflow.log_metric("final_val_loss", val_losses[-1])
-        mlflow.log_metric("final_train_accuracy", train_accs[-1])
-        mlflow.log_metric("final_val_accuracy", val_accs[-1])
-        mlflow.log_metric("best_val_accuracy", best_val_acc)
+        # Log final metrics -BATCH LOGGING
+        mlflow.log_metrics({
+            "final_train_loss": train_losses[-1],
+            "final_val_loss": val_losses[-1],
+            "final_train_accuracy": train_accs[-1],
+            "final_val_accuracy": val_accs[-1],
+            "best_val_accuracy": best_val_acc,
+        })
 
         # Plot and save training curves
         plots_dir = Path("plots")
