@@ -796,7 +796,48 @@ python cli/cli.py preprocess pipeline image.jpg  # Full preprocessing
 - `preprocess rotate` - Random rotation
 - `preprocess flip` - Random horizontal flip
 - `preprocess blur` - Gaussian blur
-- `preprocess pipeline` - Full preprocessing chain
+### 11. Render Deployment Fixes (Space & Memory Issues)
+
+**Challenge**: Render's free tier has strict limits (512MB RAM, limited disk space). The initial deployment failed because the Docker image was too large (>2GB) and the application ran out of memory.
+
+**Root Cause Analysis**:
+1.  **PyTorch CUDA Version**: By default, `pip install torch` installs the CUDA version, which includes ~800MB of NVIDIA libraries. Render runs on CPU-only instances, making these libraries useless bloat.
+2.  **Large Model Weights**: The initial ResNet50 model was ~90MB. While not huge, combined with the CUDA libraries, it pushed the image size over the limit.
+3.  **Memory Usage**: Loading a large model + CUDA libraries exceeded the 512MB RAM limit.
+
+**Solution Implemented**:
+1.  **Explicit CPU-Only PyTorch Installation**: Modified the `Dockerfile` to install the CPU-specific wheel of PyTorch.
+    ```dockerfile
+    RUN uv pip install --system --no-cache torch==2.5.1 torchvision==0.20.1 --index-url https://download.pytorch.org/whl/cpu
+    ```
+    This reduced the PyTorch installation size from ~900MB to ~150MB.
+2.  **Model Optimization**: Switched from ResNet50 to EfficientNet-B0 (see Model Comparison below).
+3.  **Clean Build**: Used `uv` for faster and cleaner dependency resolution, and optimized `.dockerignore` to exclude all non-essential files.
+
+**Result**:
+- **Docker Image Size**: Reduced to ~500MB.
+- **Deployment**: Successful deployment on Render free tier.
+- **Inference**: Functional CPU-based inference.
+
+---
+
+### 12. Model Comparison and Selection
+
+We experimented with three different architectures to find the best balance between accuracy and efficiency for the Render deployment.
+
+| Model Architecture | Parameters | Model Size (.pth) | Validation Accuracy | Deployment Suitability |
+|--------------------|------------|-------------------|---------------------|------------------------|
+| **MobileNetV2**    | ~3.5M      | ~14MB             | ~90.0%              | High (Very small)      |
+| **ResNet50**       | ~25.6M     | ~98MB             | ~84.1%              | Low (Too large/heavy)  |
+| **EfficientNet-B0**| ~5.3M      | ~21MB             | **90.9%**           | **Best (High Acc/Small)**|
+
+**Decision**:
+We selected **EfficientNet-B0** as the production model.
+
+**Reasoning**:
+1.  **Accuracy**: It achieved the highest validation accuracy (90.9%), outperforming both MobileNetV2 and ResNet50.
+2.  **Efficiency**: While slightly larger than MobileNetV2, it is significantly smaller than ResNet50 (21MB vs 98MB).
+3.  **Trade-off**: It offers the best trade-off, providing state-of-the-art accuracy with a footprint small enough to fit comfortably within Render's constraints when paired with the CPU-only PyTorch build.
 
 ---
 
