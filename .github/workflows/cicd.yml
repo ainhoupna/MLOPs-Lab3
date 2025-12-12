@@ -84,7 +84,10 @@ jobs:
           cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/mlops-lab3:buildcache,mode=max
       
       - name: Trigger Render Deploy
-        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_KEY }}"
+        run: |
+          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_KEY }}"
+        env:
+          DOCKER_IMAGE: ${{ env.DOCKER_IMAGE }}
   
   # Job 3: Deploy to HuggingFace Spaces
   deploy-hf:
