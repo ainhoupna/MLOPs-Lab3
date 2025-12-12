@@ -79,9 +79,13 @@ async def predict(file: UploadFile = File(...)):
 
     try:
         image_bytes = io.BytesIO(await file.read())
-        predicted_class = predict_image_class(image_bytes)
+        predicted_class, confidence = predict_image_class(image_bytes)
 
-        return {"filename": file.filename, "predicted_class": predicted_class}
+        return {
+            "filename": file.filename,
+            "predicted_class": predicted_class,
+            "confidence": confidence,
+        }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e

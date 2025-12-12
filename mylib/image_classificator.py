@@ -118,8 +118,8 @@ def predict_image_class(image_file: io.BytesIO) -> str:
 
     Returns
     -------
-    str
-        The predicted class name from the model.
+    tuple[str, float]
+        The predicted class name and confidence score.
 
     Raises
     ------
@@ -134,9 +134,9 @@ def predict_image_class(image_file: io.BytesIO) -> str:
 
         # Get classifier and predict
         classifier = get_classifier()
-        predicted_class = classifier.predict(img)
+        predicted_class, confidence = classifier.predict(img)
 
-        return predicted_class
+        return predicted_class, confidence
 
     except Exception as e:
         raise ValueError(f"Error during image classification: {e}") from e

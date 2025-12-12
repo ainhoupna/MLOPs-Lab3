@@ -98,11 +98,16 @@ class ONNXPetClassifier:
         # Get logits (first output)
         logits = outputs[0]
 
-        # Get predicted class index
-        predicted_idx = np.argmax(logits, axis=1)[0]
+        # Calculate probabilities using softmax
+        exp_logits = np.exp(logits - np.max(logits, axis=1, keepdims=True))
+        probabilities = exp_logits / np.sum(exp_logits, axis=1, keepdims=True)
 
-        # Return class label
-        return self.class_labels[predicted_idx]
+        # Get predicted class index
+        predicted_idx = np.argmax(probabilities, axis=1)[0]
+        confidence = float(probabilities[0][predicted_idx])
+
+        # Return class label and confidence
+        return self.class_labels[predicted_idx], confidence
 
 
 # Create a global classifier instance

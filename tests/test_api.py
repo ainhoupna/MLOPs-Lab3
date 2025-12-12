@@ -93,8 +93,10 @@ def test_api_predict_success(test_client, image_buffer, expected_classes):
     data = response.json()
     
     assert "predicted_class" in data
+    assert "confidence" in data
     assert "filename" in data
     assert data["filename"] == "test_image.jpg"
+    assert isinstance(data["confidence"], float)
 
 
 def test_api_predict_invalid_image_type(test_client):

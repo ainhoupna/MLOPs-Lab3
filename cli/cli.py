@@ -72,9 +72,10 @@ def classify_predict(image_path: str):
         with open(path, "rb") as f:
             image_bytes = io.BytesIO(f.read())
 
-        predicted_class = predict_image_class(image_bytes)
+        predicted_class, confidence = predict_image_class(image_bytes)
         click.echo(f"Image: {image_path}")
         click.echo(f"Predicted class: {predicted_class}")
+        click.echo(f"Confidence: {confidence:.2%}")
 
     except (ValueError, FileNotFoundError) as e:
         click.echo(f"ERROR: {e}", err=True)

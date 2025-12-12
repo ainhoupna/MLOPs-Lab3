@@ -37,8 +37,12 @@ def image_buffer(sample_image_path):
 def test_logic_predict_returns_valid_string(image_buffer):
     """Test that predict_image_class returns a non-empty string."""
     prediction = predict_image_class(image_buffer)
-    assert isinstance(prediction, str)
-    assert len(prediction) > 0
+    assert isinstance(prediction, tuple)
+    assert len(prediction) == 2
+    assert isinstance(prediction[0], str)
+    assert isinstance(prediction[1], float)
+    assert len(prediction[0]) > 0
+    assert 0.0 <= prediction[1] <= 1.0
 
 def test_logic_resize_returns_bytesio_and_correct_size(image_buffer):
     """Test that resize_image returns a BytesIO and the image has the correct new size."""
