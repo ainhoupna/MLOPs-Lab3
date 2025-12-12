@@ -299,17 +299,17 @@ Based on `final_val_accuracy` comparison:
 | **Generalization Gap**| **1%** ✅                  | 2%                         | 10% (underfitting)         |
 
 **Selected Model for Production**:
-- **Run Name**: `mobilenet_v2_bs32_lr0.0005_ep5`
-- **Configuration**: Batch size 32, Learning rate 0.0005, 5 epochs
-- **Final Validation Accuracy**: **90.0%**
-- **Final Training Accuracy**: 91.0%
+- **Run Name**: `efficientnet_b0_bs32_lr0.001_ep5`
+- **Model Architecture**: EfficientNet-B0
+- **Configuration**: Batch size 32, Learning rate 0.001, 5 epochs
+- **Final Validation Accuracy**: **90.9%**
+- **Final Training Accuracy**: ~92.0%
 
 **Justification**:
-1. **Highest validation accuracy** among all experiments
-2. **Excellent generalization** (only 1% train/val gap)
-3. **Stable training** with low validation loss
-4. **Well-balanced hyperparameters** (lr=0.0005 prevents overfitting)
-5. **More training** (5 epochs vs. 3) allowed better convergence
+1.  **Highest validation accuracy** (90.9% vs ~84% for ResNet50).
+2.  **Model Efficiency**: EfficientNet-B0 is significantly smaller and faster than ResNet50, making it ideal for the resource-constrained Render free tier.
+3.  **Deployment Size**: The smaller model size reduces the Docker image size and memory footprint, preventing deployment failures on Render.
+4.  **Excellent generalization** with stable convergence.
 
 ### Performance Analysis
 

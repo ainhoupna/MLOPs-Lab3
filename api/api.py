@@ -27,6 +27,7 @@ templates = Jinja2Templates(directory="templates")
 
 
 @app.get("/", response_class=HTMLResponse)
+@app.head("/", response_class=HTMLResponse)
 async def home(request: Request):
     """
     Renders the home page of the API, which includes a demo form.

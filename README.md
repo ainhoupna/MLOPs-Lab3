@@ -28,11 +28,11 @@ This project implements a full MLOps stack:
 
 ## Model Performance
 
-- **Deployed Model**: MobileNetV2 (optimized for 512MB memory limit)
-- **Validation Accuracy**: ~90%
+- **Deployed Model**: EfficientNet-B0 (optimized for Render free tier)
+- **Validation Accuracy**: ~91%
 - **Dataset**: Oxford-IIIT Pet (37 classes)
 - **Training**: Transfer learning with frozen feature extractor
-- **Model Size**: ~9MB (ONNX format)
+- **Model Size**: ~90MB (ONNX format)
 
 ## Live Deployments
 
