@@ -8,4 +8,4 @@ generated-members=torch.*, numpy.*
 
 [MESSAGES CONTROL]
 # Optional: disable refactor (R) and conventions (C)
-disable=R,C
+disable=R,C,W0603

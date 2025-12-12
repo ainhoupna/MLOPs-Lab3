@@ -1,5 +1,4 @@
 import io
-import random
 from PIL import Image
 
 IMAGE_CLASSES = ["person", "airplane", "ball", "house", "truck"]

@@ -4,7 +4,7 @@ Image preprocessing utilities for CLI commands.
 
 import random
 from pathlib import Path
-from PIL import Image, ImageFilter
+from PIL import Image, ImageFilter, ImageOps
 
 
 def ensure_output_dir(output_dir: str = "outputs") -> None:
@@ -45,20 +45,20 @@ def random_rotate(img: Image.Image, max_degrees: int = 20) -> Image.Image:
     return img.rotate(angle, expand=True, fillcolor=(255, 255, 255))
 
 
-def random_flip(img: Image.Image, probability: float = 0.5) -> Image.Image:
+def random_flip(image, probability=0.5):
     """
-    Randomly flip image horizontally with given probability.
+    Randomly flip image horizontally.
     
     Args:
-        img: PIL Image object
-        probability: Probability of flipping (default: 0.5)
-        
+        image: PIL Image
+        probability: Probability of flipping (default 0.5)
+    
     Returns:
         PIL Image (flipped or original)
     """
-    if random.random() < probability:
-        return img.transpose(Image.FLIP_LEFT_RIGHT)
-    return img
+    if random.random() > probability:
+        return ImageOps.mirror(image)
+    return image
 
 
 def blur(img: Image.Image, radius: int = 2) -> Image.Image:

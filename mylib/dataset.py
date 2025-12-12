@@ -6,10 +6,9 @@ preprocessing the Oxford-IIIT Pet dataset.
 """
 
 import torch
-from torch.utils.data import Dataset, Subset, random_split
+from torch.utils.data import Dataset, random_split
 from torchvision import transforms
 from torchvision.datasets import OxfordIIITPet
-from PIL import Image
 
 
 class PetDataset(Dataset):
