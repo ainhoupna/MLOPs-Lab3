@@ -1,24 +1,17 @@
----
-title: MLOps Lab3 - Transfer Learning with MLflow
-colorFrom: indigo
-colorTo: yellow
-sdk: gradio
-sdk_version: 4.44.1
-app_file: app.py
-pinned: false
----
-
 # MLOps Lab3 - Transfer Learning with MLflow Experiment Tracking
+
+[![CI/CD](https://github.com/ainhoupna/MLOPs-Lab3/actions/workflows/cicd.yml/badge.svg)](https://github.com/ainhoupna/MLOPs-Lab3/actions/workflows/cicd.yml)
 
 This project demonstrates a complete MLOps pipeline with transfer learning, experiment tracking, and model deployment.
 
 ## Features
 
-- **Transfer Learning**: Train pet breed classifiers using pre-trained models (ResNet, VGG, EfficientNet)
+- **Transfer Learning**: Train pet breed classifiers using pre-trained models (MobileNetV2, ResNet, EfficientNet)
 - **MLflow Experiment Tracking**: Log parameters, metrics, artifacts, and models
 - **Model Selection**: Automatically select best model based on validation accuracy
 - **ONNX Deployment**: Serialize models to ONNX format for production
-- **Image Processing**: Resize, grayscale conversion, and rotation capabilities
+- **Comprehensive CLI**: Image classification and preprocessing utilities
+- **Automated CI/CD**: GitHub Actions pipeline for testing and deployment
 
 ## Architecture
 
@@ -35,22 +28,65 @@ This project implements a full MLOps stack:
 
 ## Model Performance
 
-- **Best Model**: ResNet50
-- **Validation Accuracy**: 90.90%
-- **Dataset**: Oxford-IIIT Pet (3,680 training samples, 37 classes)
+- **Deployed Model**: MobileNetV2 (optimized for 512MB memory limit)
+- **Validation Accuracy**: ~90%
+- **Dataset**: Oxford-IIIT Pet (37 classes)
 - **Training**: Transfer learning with frozen feature extractor
+- **Model Size**: ~9MB (ONNX format)
+
+## Live Deployments
+
+- **Frontend (Gradio)**: [HuggingFace Space](https://huggingface.co/spaces/ainhoupna/mlops-lab-3)
+- **Backend (FastAPI)**: [Render API](https://mlops-lab3-n3sg.onrender.com)
+- **Docker Image**: [Docker Hub](https://hub.docker.com/r/ainhoupna/mlops-lab3)
 
 ## Technical Stack
 
 - **ML Framework**: PyTorch, torchvision
 - **Experiment Tracking**: MLflow
 - **Inference**: ONNX Runtime
-- **Backend**: FastAPI, Python 3.13
+- **Backend**: FastAPI, Python 3.11
 - **Frontend**: Gradio
-- **Containerization**: Docker
+- **Containerization**: Docker (multi-stage build)
 - **CI/CD**: GitHub Actions
+- **Testing**: pytest (50 tests, 80% coverage)
+- **Code Quality**: pylint (10/10 score)
 - **Hosting**: Render (API), HuggingFace Spaces (Frontend)
+
+## Quick Start
+
+### Run Locally
+
+```bash
+# Install dependencies
+make install
+
+# Run tests
+make test
+
+# Start API server
+uvicorn api.api:app --reload
+
+# Use CLI
+python -m cli.cli classify predict image.jpg
+python -m cli.cli preprocess pipeline image.jpg --output processed.jpg
+```
+
+### Docker
+
+```bash
+docker build -t mlops-lab3 .
+docker run -p 8000:8000 mlops-lab3
+```
+
+## CI/CD Pipeline
+
+The project uses GitHub Actions for automated testing and deployment:
+
+1. **Build**: Run tests, linting, and formatting checks
+2. **Deploy**: Build and push Docker image to Docker Hub, trigger Render deployment
+3. **Deploy-HF**: Deploy Gradio frontend to HuggingFace Spaces
 
 ## Note
 
-The first request might take 30-60 seconds due to cold start on the free tier. Subsequent requests will be faster.
+The first API request might take 30-60 seconds due to cold start on Render's free tier. Subsequent requests will be faster.
