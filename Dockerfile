@@ -38,7 +38,7 @@ COPY templates ./templates
 
 # Copy model artifacts (must be present locally)
 COPY model.onnx .
-COPY model.onnx.data* .
+COPY model.onnx.data .
 COPY class_labels.json .
 
 # Expose the port associated with the API created with FastAPI
