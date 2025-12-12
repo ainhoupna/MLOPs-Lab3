@@ -102,6 +102,9 @@ jobs:
           fetch-depth: 0  # needed to access other branches (hf-space)
           ref: master  # Changed from 'main' to 'master'
       
+      - name: Stash local changes to avoid conflicts
+        run: git stash --include-untracked || true
+      
       - name: Switch to hf-space branch
         run: |
           git fetch origin hf-space:hf-space
