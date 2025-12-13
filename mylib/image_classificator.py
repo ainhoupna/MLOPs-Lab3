@@ -1,8 +1,6 @@
 import io
 from PIL import Image
 
-IMAGE_CLASSES = ["person", "airplane", "ball", "house", "truck"]
-
 
 def resize_image(image_file: io.BytesIO, width: int, height: int) -> io.BytesIO:
     """

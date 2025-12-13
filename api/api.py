@@ -43,7 +43,7 @@ async def home(request: Request):
         The rendered home.html template.
     """
     return templates.TemplateResponse(
-        "home.html", {"request": request, "api_title": app.title}
+        request=request, name="home.html", context={"api_title": app.title}
     )
 
 
