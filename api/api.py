@@ -19,7 +19,7 @@ from mylib.image_classificator import (
 # Configure FastAPI
 app = FastAPI(
     title="MLOps Image Classification API",
-    description="API to perform image classification (simulated) and resizing, with extra transformations.",
+    description="API to perform image classification using MobileNetV2 and image transformations.",
 )
 
 # Configure templates (directory="templates")

@@ -98,10 +98,8 @@ class ONNXPetClassifier:
         # Get logits (first output)
         logits = outputs[0]
 
-        # Calculate probabilities using softmax with temperature scaling
-        temperature = 5.0  # Soften the distribution
-        scaled_logits = logits / temperature
-        exp_logits = np.exp(scaled_logits - np.max(scaled_logits, axis=1, keepdims=True))
+        # Calculate probabilities using softmax
+        exp_logits = np.exp(logits - np.max(logits, axis=1, keepdims=True))
         probabilities = exp_logits / np.sum(exp_logits, axis=1, keepdims=True)
 
         # Get predicted class index
