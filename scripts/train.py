@@ -295,9 +295,10 @@ def train(model_name, batch_size, epochs, lr, seed, data_dir, experiment_name):
         plot_training_curves(train_losses, val_losses, train_accs, val_accs, plot_path)
         mlflow.log_artifact(plot_path)
 
-        # Log model
+        # Log model with unique name based on architecture
         print("Logging model to MLflow...")
-        mlflow.pytorch.log_model(model, "model", registered_model_name="pet-classifier")
+        registered_name = f"pet-classifier-{model_name}"
+        mlflow.pytorch.log_model(model, "model", registered_model_name=registered_name)
 
         print(f"\n✓ Training complete!")
         print(f"  Best validation accuracy: {best_val_acc:.2f}%")

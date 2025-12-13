@@ -16,15 +16,14 @@ from mlflow.tracking import MlflowClient
 
 
 @click.command()
-@click.option("--model-name", default="pet-classifier", help="Registered model name in MLflow")
 @click.option("--output-dir", default="./", help="Output directory for serialized model")
 @click.option("--metric", default="final_val_accuracy", help="Metric to use for comparison")
-def select_and_serialize(model_name, output_dir, metric):
+def select_and_serialize(output_dir, metric):
     """
     Select the best model from MLflow registry and serialize to ONNX.
+    Searches across all pet-classifier-* models and selects based on size priority.
 
     Args:
-        model_name: Name of the registered model in MLflow
         output_dir: Directory to save the serialized model
         metric: Metric name to use for model comparison
     """
@@ -34,20 +33,30 @@ def select_and_serialize(model_name, output_dir, metric):
     # Initialize MLflow client
     client = MlflowClient()
 
-    print(f"Searching for registered models with name: {model_name}")
+    print(f"Searching for all registered pet-classifier models...")
 
-    # Search for all versions of the registered model
+    # Search for ALL registered models
     try:
-        model_versions = client.search_model_versions(f"name='{model_name}'")
+        all_models = client.search_registered_models()
+        # Filter for pet-classifier models
+        pet_models = [m for m in all_models if m.name.startswith("pet-classifier-")]
     except Exception as e:
-        print(f"Error searching for model versions: {e}")
+        print(f"Error searching for models: {e}")
         print("Make sure you have trained and registered models first.")
         return
 
-    if not model_versions:
-        print(f"No model versions found for '{model_name}'")
+    if not pet_models:
+        print(f"No pet-classifier models found")
         print("Please train and register models first using scripts/train.py")
         return
+    
+    print(f"Found {len(pet_models)} pet-classifier models")
+    
+    # Get all versions from all models
+    model_versions = []
+    for model in pet_models:
+        versions = client.search_model_versions(f"name='{model.name}'")
+        model_versions.extend(versions)
 
     print(f"Found {len(model_versions)} model version(s)")
 
@@ -76,10 +85,43 @@ def select_and_serialize(model_name, output_dir, metric):
         print(f"  Epochs: {run.data.params.get('epochs', 'N/A')}")
         print()
 
-        # Update best model if this one is better
-        if metric_value > best_metric_value:
-            best_metric_value = metric_value
+        # Update best model based on SIZE (lightest first), then accuracy
+        # Define model size priority (smaller index = lighter/better)
+        size_priority = {
+            "mobilenet_v2": 0,
+            "efficientnet_b0": 1,
+            "resnet18": 2,
+            "resnet50": 3,
+            "vgg16": 4
+        }
+        
+        current_model_name = run.data.params.get('model_name', 'unknown')
+        
+        # If we haven't selected a model yet, take this one
+        if best_version is None:
             best_version = version
+            best_metric_value = metric_value
+            continue
+            
+        # Get details of the currently selected best model
+        best_run = client.get_run(best_version.run_id)
+        best_model_name = best_run.data.params.get('model_name', 'unknown')
+        
+        current_priority = size_priority.get(current_model_name, 99)
+        best_priority = size_priority.get(best_model_name, 99)
+        
+        # Logic:
+        # 1. If current model is lighter (lower priority index), select it
+        # 2. If models have same size priority, select the one with higher accuracy
+        if current_priority < best_priority:
+            print(f"  -> Selecting {current_model_name} over {best_model_name} (Lighter: {current_priority} < {best_priority})")
+            best_version = version
+            best_metric_value = metric_value
+        elif current_priority == best_priority:
+            if metric_value > best_metric_value:
+                print(f"  -> Selecting {current_model_name} (Higher Accuracy: {metric_value:.2f} > {best_metric_value:.2f})")
+                best_version = version
+                best_metric_value = metric_value
 
     if best_version is None:
         print("Could not find a best model")

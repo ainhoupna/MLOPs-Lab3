@@ -28,11 +28,18 @@ This project implements a full MLOps stack:
 
 ## Model Performance
 
-- **Deployed Model**: EfficientNet-B0 (optimized for Render free tier)
-- **Validation Accuracy**: ~91%
+We trained and compared 4 different architectures:
+- **MobileNetV2**: 88.32% (Selected for deployment - lightest model)
+- **ResNet18**: 87.77%
+- **ResNet50**: 90.90% (Best accuracy, but too large for Render free tier)
+- **EfficientNet-B0**: 84.10%
+
+**Deployed Model**: MobileNetV2
+- **Selection Criteria**: Prioritizes model size over raw accuracy for efficient deployment
+- **Validation Accuracy**: 88.32%
+- **Model Size**: ~9MB (ONNX format: 147KB + 8.7MB data)
 - **Dataset**: Oxford-IIIT Pet (37 classes)
-- **Training**: Transfer learning with frozen feature extractor
-- **Model Size**: ~90MB (ONNX format)
+- **Training**: Transfer learning with frozen feature extractor (5 epochs)
 
 ## Live Deployments
 
