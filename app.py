@@ -66,7 +66,7 @@ iface = gr.Interface(
     inputs=image_input,
     outputs=prediction_output,
     title="MLOps Lab 3: Pet Breed Classifier",
-    description=f"Upload an image of a dog or cat to classify its breed. Powered by ResNet50 + ONNX Runtime (API: {RENDER_API_URL})"
+    description=f"Upload an image of a dog or cat to classify its breed. Powered by MobileNetV2 + ONNX Runtime (API: {RENDER_API_URL})"
 )
 
 # Launch the GUI (necessary for local testing, ignored by HuggingFace Spaces)
