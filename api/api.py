@@ -131,9 +131,6 @@ async def resize(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-# --- NUEVOS ENDPOINTS PARA LAS TRANSFORMACIONES EXTRA ---
-
-
 @app.post("/grayscale")
 async def grayscale(file: UploadFile = File(...)):
     """
